@@ -33,8 +33,8 @@ namespace APIs.Controllers
             return product;
         }
 
-        [HttpPost] 
-        public async Task<ActionResult<Product>> CreateProducts(Product product )
+        [HttpPost]
+        public async Task<ActionResult<Product>> CreateProducts(Product product)
         {
             await storeContext.Products.AddAsync(product);
 
@@ -42,5 +42,37 @@ namespace APIs.Controllers
 
             return product;
         }
+        [HttpPut("{Id:int}")]
+        public async Task<ActionResult> UpdateProducts(int Id, Product product)
+        {
+            if (Id != product.Id || !ProductExists(Id))
+            {
+                return BadRequest("Product Cannot be updated because it does not exist.");
+            }
+            storeContext.Entry(product).State = EntityState.Modified;
+            await storeContext.SaveChangesAsync();
+            return NoContent();
+        }
+
+        [HttpDelete("{Id:int}")]
+        public async Task<ActionResult> DeleteProducts(int Id)
+        {
+            var product = await storeContext.Products.FindAsync(Id);
+
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            storeContext.Products.Remove(product);
+            await storeContext.SaveChangesAsync();
+
+            return NoContent();
+        }
+        
+        private bool ProductExists(int id)
+        {
+            return storeContext.Products.Any(e => e.Id == id);
+        }   
     }
 }
