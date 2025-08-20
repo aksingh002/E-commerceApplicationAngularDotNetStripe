@@ -1,0 +1,4 @@
+dotnet ef database update --project Infra/Infra.csproj --startup-project APIs/APIs.csproj
+
+docker compose up -d
+
