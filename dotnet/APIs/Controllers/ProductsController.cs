@@ -12,13 +12,13 @@ namespace APIs.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductsController(IProductRepository productrepo) : ControllerBase
+    public class ProductsController(IGenericRepository<Product> productrepo) : ControllerBase
     {
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Product>>> GetProducts(string? brand , string? type , string? sort)
         {
-            var products = await productrepo.GetProductsAsync( brand , type, sort);
+            var products = await productrepo.ListAllAsync();
 
             return Ok(products);
         }
@@ -26,7 +26,7 @@ namespace APIs.Controllers
         [HttpGet("{Id:int}")]
         public async Task<ActionResult<Product>> GetProducts(int Id)
         {
-            var product = await productrepo.GetProductByIdAsync(Id);
+            var product = await productrepo.GetByIdAsync(Id);
 
             if (product == null)
                 return NotFound();
@@ -37,9 +37,9 @@ namespace APIs.Controllers
         [HttpPost]
         public async Task<ActionResult<Product>> CreateProducts(Product product)
         {
-            productrepo.AddProductsAsync(product);
+            productrepo.Add(product);
 
-            if (await productrepo.SaveChangesAsync())
+            if (await productrepo.SaveAllAsync())
                 return CreatedAtAction("GetProducts", new { id = product.Id }, product);
 
             return BadRequest("Product format is not correct");
@@ -47,12 +47,12 @@ namespace APIs.Controllers
         [HttpPut("{Id:int}")]
         public async Task<ActionResult> UpdateProducts(int Id, Product product)
         {
-            if (Id != product.Id || !productrepo.ProductExists(product.Id))
+            if (Id != product.Id || !productrepo.Exists(product.Id))
             {
                 return BadRequest("Product Cannot be updated because it does not exist.");
             }
-            productrepo.UpdateProductsAsync(product);
-            if (await productrepo.SaveChangesAsync())
+            productrepo.Update(product);
+            if (await productrepo.SaveAllAsync())
                 return NoContent();
 
             return BadRequest("Product format is not correct");
@@ -61,14 +61,14 @@ namespace APIs.Controllers
         [HttpDelete("{Id:int}")]
         public async Task<ActionResult> DeleteProducts(int Id)
         {
-            var product = await productrepo.GetProductByIdAsync(Id);
+            var product = await productrepo.GetByIdAsync(Id);
             
             if (product == null)
             {
                 return NotFound();
             }
-            productrepo.DeleteProductsAsync(product);
-            if (await productrepo.SaveChangesAsync())
+            productrepo.Remove(product);
+            if (await productrepo.SaveAllAsync())
                 return NoContent();
 
             return BadRequest("Product format is not correct");
@@ -76,17 +76,19 @@ namespace APIs.Controllers
         [HttpGet("Brands")]
         public async Task<ActionResult<IEnumerable<string>>> GetBrands()
         {
-            return Ok(await productrepo.GetBrandsAsync());
+            // todo
+            return Ok();
         }
         [HttpGet("Types")]
         public async Task<ActionResult<IEnumerable<string>>> GetTypes()
         {
-            return Ok(await productrepo.GetTypesAsync());
+            // todo
+            return Ok();
         }
         
         private bool ProductExists(int id)
         {
-            return productrepo.ProductExists(id);
+            return productrepo.Exists(id);
         }   
     }
 }
