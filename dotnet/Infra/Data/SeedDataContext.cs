@@ -21,6 +21,8 @@ public class SeedDataContext
                 return;
             }
 
+
+
             await storeContext.Products.AddRangeAsync(product);
 
             await storeContext.SaveChangesAsync();
