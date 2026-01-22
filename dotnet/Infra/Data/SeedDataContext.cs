@@ -3,6 +3,7 @@ using System.Text.Json;
 using Azure.Core.Serialization;
 using Core.Entities;
 using Infra.Config;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infra.Data;
 
@@ -10,7 +11,7 @@ public class SeedDataContext
 {
     public static async Task SeedDataAsync(StoreContext storeContext)
     {
-        if (!storeContext.Products.Any())
+        if (storeContext.Products.Count<Product>() > 1)
         {
             var Productjson = await File.ReadAllTextAsync("../Infra/SeedData/products.json");
 
@@ -22,14 +23,12 @@ public class SeedDataContext
             }
 
 
-
             await storeContext.Products.AddRangeAsync(product);
 
             await storeContext.SaveChangesAsync();
             
 
         }
-
 
     }
 }

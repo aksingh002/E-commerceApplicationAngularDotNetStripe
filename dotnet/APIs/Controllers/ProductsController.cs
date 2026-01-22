@@ -2,6 +2,7 @@ using System.Globalization;
 using Core.Data;
 using Core.Entities;
 using Core.Interfaces;
+using Core.Specifications;
 using Infra.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -18,7 +19,9 @@ namespace APIs.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Product>>> GetProducts(string? brand , string? type , string? sort)
         {
-            var products = await productrepo.ListAllAsync();
+            var spec = new ProductSpecification(brand, type,sort);
+
+            var products = await productrepo.ListAsync(spec);
 
             return Ok(products);
         }
