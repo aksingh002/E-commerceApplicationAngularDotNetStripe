@@ -58,4 +58,17 @@ public class GenericRepository<T>(StoreContext context) : IGenericRepository<T> 
     {
         return SpecificationEvaluator<T>.GetQuery(context.Set<T>().AsQueryable(),spec);
     }
+    public IQueryable<TResult> ApplySpecfication<TResult>(ISpecificationRepository<T,TResult> spec)
+    {
+        return SpecificationEvaluator<T>.GetQuery<T,TResult>(context.Set<T>().AsQueryable(),spec);
+    }
+    public async Task<TResult?> GetEntityWithSpec<TResult>(ISpecificationRepository<T, TResult> spec)
+    {
+        return await ApplySpecfication(spec).FirstOrDefaultAsync();
+    }
+
+    public async Task<IReadOnlyList<TResult>> ListAsync<TResult>(ISpecificationRepository<T, TResult> spec)
+    {
+        return await ApplySpecfication(spec).ToListAsync();
+    }
 }
